@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ayur </title>
+
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1: #0f1724; /* deep */
+      --bg2: #12202b; /* mid */
+      --accent: #6ee7b7; /* mint */
+      --accent-2: #60a5fa; /* blue */
+      --glass: rgba(255,255,255,0.06);
+      --muted: rgba(255,255,255,0.65);
+    }
+    *{box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    html,body{height:100%; margin:0; background: linear-gradient(120deg,var(--bg1),var(--bg2));}
+
+    /* Chat wrapper */
+    .chat-wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px}
+    .chat-card{width:100%; max-width:960px; border-radius:16px; overflow:hidden; box-shadow: 0 8px 30px rgba(2,6,23,0.6); display:grid; grid-template-columns: 320px 1fr;}
+
+    /* Sidebar */
+    .sidebar{background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); padding:18px; color:var(--muted)}
+    .brand{display:flex; align-items:center; gap:12px; margin-bottom:8px}
+    .brand .logo{height:48px; width:48px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#04263b; font-weight:700}
+    .brand h3{margin:0; color:#fff; font-size:18px}
+    .brand p{margin:0; font-size:12px; color:var(--muted)}
+
+    .profile{display:flex; align-items:center; gap:10px; margin:16px 0}
+    .profile img{width:56px;height:56px;border-radius:12px;border:2px solid rgba(255,255,255,0.06)}
+
+    .quick-actions{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:999px; font-size:13px; cursor:pointer; transition:all .18s ease}
+    .chip:hover{transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,0.35)}
+
+    /* Conversation area */
+    .conv{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); padding:0; display:flex; flex-direction:column}
+    .conv-header{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+    .conv-header .title{display:flex; gap:12px; align-items:center}
+    .conv-header .title h4{margin:0; color:#fff}
+    .conv-header .title small{color:var(--muted)}
+
+    .messages{flex:1; padding:18px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; background-image: linear-gradient(180deg, rgba(255,255,255,0.00), rgba(255,255,255,0.01));}
+
+    /* message bubbles */
+    .bubble{max-width:72%; padding:12px 14px; border-radius:14px; position:relative; line-height:1.3}
+    .from-me{align-self:flex-end; background:linear-gradient(90deg,#16a34a,#34d399); color:#052214; border-bottom-right-radius:6px}
+    .from-bot{align-self:flex-start; background:linear-gradient(90deg,#0ea5e9,#60a5fa); color:#001025; border-bottom-left-radius:6px}
+    .meta{display:block; font-size:11px; opacity:0.85; margin-top:8px}
+
+    .avatar{width:36px;height:36px;border-radius:10px; display:inline-block; vertical-align:middle; margin-right:10px}
+    .message-row{display:flex; align-items:flex-end; gap:10px}
+
+    /* typing indicator */
+    .typing{display:inline-block; width:48px; text-align:left}
+    .typing span{display:inline-block; width:8px; height:8px; background:rgba(255,255,255,0.9); border-radius:50%; margin-right:6px; opacity:0.85; animation: blink 1.1s infinite}
+    .typing span:nth-child(2){animation-delay:.12s}
+    .typing span:nth-child(3){animation-delay:.24s}
+    @keyframes blink{0%{transform:translateY(0); opacity:.3}50%{transform:translateY(-6px); opacity:1}100%{transform:translateY(0); opacity:.3}}
+
+    /* input */
+    .composer{padding:14px; display:flex; gap:12px; align-items:center; border-top:1px solid rgba(255,255,255,0.02)}
+    .composer input[type=text]{flex:1; border-radius:12px; background:var(--glass); border:0; padding:12px 14px; color:#fff}
+    .composer input[type=text]:focus{outline:none; box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    .send-btn{background:linear-gradient(90deg,var(--accent),var(--accent-2)); border:0; color:#041621; padding:10px 14px; border-radius:12px}
+
+    /* small screens */
+    @media (max-width:840px){
+      .chat-card{grid-template-columns: 1fr}
+      .sidebar{order:2}
+      .conv{order:1}
+    }
+
+    /* subtle entrance animation */
+    .fade-in-up{animation:fadeUp .45s ease both}
+    @keyframes fadeUp{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+    /* micro interactions */
+    .chip:active{transform:translateY(0)}
+
+    /* scroll bar styling */
+    .messages::-webkit-scrollbar{width:10px}
+    .messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06); border-radius:10px}
+
+  </style>
+</head>
+<body>
+  <div class="chat-wrap">
+    <div class="chat-card fade-in-up">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo">AY</div>
+          <div>
+            <h3>Ayur</h3>
+            <p>Personal medical assistant — friendly & confidential</p>
+          </div>
+        </div>
+
+        <div class="profile">
+          <img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" alt="ayur avatar">
+          <div>
+            <strong style="color:#fff">Ayur</strong>
+            <div style="font-size:12px;color:var(--muted)">Here to help with symptoms, medicine info & wellness tips</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px; font-size:13px; color:var(--muted); margin-bottom:8px">Quick suggestions</div>
+        <div class="quick-actions" id="quickActions">
+          <div class="chip">What are migraine symptoms?</div>
+          <div class="chip">Med side-effects</div>
+          <div class="chip">When to see a doctor</div>
+          <div class="chip">Home remedies for cold</div>
+          <div class="chip">Schedule appointment</div>
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.02); margin-top:14px">
+        <div style="font-size:13px; color:var(--muted); margin-top:8px">Conversation</div>
+        <div style="margin-top:8px; display:flex; gap:8px; flex-direction:column">
+          <button class="chip" id="newConv">+ New Chat</button>
+          <button class="chip" id="toggleTheme">Toggle Theme</button>
+        </div>
+      </aside>
+
+      <!-- CONVERSATION -->
+      <section class="conv">
+        <div class="conv-header">
+          <div class="title">
+            <img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" style="width:44px;height:44px;border-radius:10px" alt="ayur">
+            <div>
+              <h4>Ayur</h4>
+              <small class="text-muted">Your 24/7 medical assistant</small>
+            </div>
+          </div>
+          <div>
+            <small class="text-muted">Private · Non-diagnostic</small>
+          </div>
+        </div>
+
+        <div class="messages" id="messages" aria-live="polite">
+          <!-- messages injected here -->
+        </div>
+
+        <form id="composer" class="composer" autocomplete="off">
+          <input id="msgInput" type="text" placeholder="Type to ask Ayur... (press Enter)" required>
+          <button class="send-btn" type="submit" title="Send"><i class="fas fa-paper-plane"></i></button>
+        </form>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // helpers
+    function nowTime(){
+      const d = new Date();
+      return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    function scrollToBottom(){
+      const el = document.getElementById('messages');
+      el.scrollTop = el.scrollHeight;
+    }
+
+    // render message
+    function renderMessage(text, who='bot', timeText=null){
+      const container = document.createElement('div');
+      container.className = 'message-row';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + (who==='me' ? 'from-me' : 'from-bot');
+      bubble.innerHTML = '<div style="font-size:14px;">'+text+'</div>' + (timeText?('<span class="meta">'+timeText+'</span>'):'');
+
+      const avatar = document.createElement('img');
+      avatar.className = 'avatar';
+      avatar.src = who==='me' ? 'https://i.ibb.co/d5b84Xw/Untitled-design.png' : 'https://cdn-icons-png.flaticon.com/512/387/387569.png';
+
+      if(who==='me'){
+        container.appendChild(bubble);
+        container.appendChild(avatar);
+      } else {
+        container.appendChild(avatar);
+        container.appendChild(bubble);
+      }
+
+      document.getElementById('messages').appendChild(container);
+      scrollToBottom();
+    }
+
+    // typing indicator (returns element)
+    function showTyping(){
+      const wrap = document.createElement('div');
+      wrap.className = 'message-row';
+      wrap.id = 'typingRow';
+      const avatar = document.createElement('img'); avatar.className='avatar'; avatar.src='https://cdn-icons-png.flaticon.com/512/387/387569.png';
+      const bubble = document.createElement('div'); bubble.className='bubble from-bot';
+      bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+      wrap.appendChild(avatar); wrap.appendChild(bubble);
+      document.getElementById('messages').appendChild(wrap);
+      scrollToBottom();
+      return wrap;
+    }
+
+    // localStorage simple conversation store
+    function saveConversation(){
+      const msgs = [];
+      document.querySelectorAll('#messages .message-row').forEach(row=>{
+        const bubble = row.querySelector('.bubble');
+        if(!bubble) return;
+        const text = bubble.querySelector('div')?.innerText || '';
+        const meta = bubble.querySelector('.meta')?.innerText || '';
+        const isMe = bubble.classList.contains('from-me');
+        msgs.push({who: isMe? 'me':'bot', text: text, time: meta});
+      });
+      localStorage.setItem('ayur_conv', JSON.stringify(msgs));
+    }
+    function loadConversation(){
+      const raw = localStorage.getItem('ayur_conv');
+      if(!raw) return false;
+      try{
+        const msgs = JSON.parse(raw);
+        msgs.forEach(m=> renderMessage(m.text, m.who, m.time));
+        return true;
+      }catch(e){return false}
+    }
+
+    // main
+    $(function(){
+      // populate quick chips
+      document.querySelectorAll('.chip').forEach(ch=>{
+        ch.addEventListener('click', ()=>{
+          const text = ch.innerText || ch.textContent;
+          if(text.trim().length===0) return;
+          $('#msgInput').val(text);
+          $('#composer').submit();
+        });
+      });
+
+      // new conversation
+      $('#newConv').on('click', ()=>{
+        if(confirm('Start a new conversation? This will clear current chat locally.')){
+          document.getElementById('messages').innerHTML='';
+          localStorage.removeItem('ayur_conv');
+          // welcome message
+          setTimeout(()=>renderMessage('Hello! I\'m Ayur — your medical assistant. How can I help you today?', 'bot', nowTime()), 250);
+        }
+      });
+
+      // toggle theme (simple invert)
+      $('#toggleTheme').on('click', ()=>{
+        document.documentElement.style.filter = document.documentElement.style.filter ? '' : 'invert(.03) hue-rotate(180deg)';
+      });
+
+      // load past conv or show welcome
+      if(!loadConversation()){
+        renderMessage('Hello! I\'m Ayur — your medical assistant. How can I help you today?\n(Privacy: this chat is stored in your browser only.)', 'bot', nowTime());
+      }
+
+      // submit handler
+      $('#composer').on('submit', function(e){
+        e.preventDefault();
+        const raw = $('#msgInput').val().trim();
+        if(!raw) return;
+        const time = nowTime();
+        renderMessage(raw, 'me', time);
+        $('#msgInput').val('');
+        saveConversation();
+
+        // show typing
+        const typingElem = showTyping();
+
+        // send to server
+        $.ajax({
+          url: '/get',
+          method: 'POST',
+          data: { msg: raw },
+          timeout: 20000,
+        }).done(function(resp){
+          // remove typing
+          if(typingElem && typingElem.parentNode) typingElem.parentNode.removeChild(typingElem);
+          // render response (server should return plain text or html-safe string)
+          renderMessage(resp, 'bot', nowTime());
+          saveConversation();
+        }).fail(function(xhr, status){
+          if(typingElem && typingElem.parentNode) typingElem.parentNode.removeChild(typingElem);
+          const text = 'Sorry — Ayur is having trouble right now. Please try again.';
+          renderMessage(text, 'bot', nowTime());
+          saveConversation();
+        });
+      });
+
+      // keyboard shortcuts
+      $('#msgInput').on('keydown', function(e){
+        if(e.key === 'Escape') { $(this).val(''); }
+      });
+
+      // auto focus
+      setTimeout(()=> document.getElementById('msgInput').focus(), 400);
+
+      // accessibility: allow clicking message text to copy
+      document.getElementById('messages').addEventListener('click', function(e){
+        const el = e.target.closest('.bubble');
+        if(!el) return;
+        const txt = el.innerText || '';
+        navigator.clipboard && navigator.clipboard.writeText(txt.trim()).then(()=>{
+          // tiny visual feedback
+          el.style.transform = 'scale(0.997)'; setTimeout(()=>el.style.transform = '', 120);
+        }).catch(()=>{});
+      });
+
+    });
+  </script>
+</body>
+</html>
